@@ -9,6 +9,16 @@ const doc = {
   },
   host: 'localhost:3000', // Change this to your server's host and port
   schemes: ['http'],
+  tags: [  // ✅ Define API headers (sections)
+    {
+      name: 'Customers', 
+      description: 'Endpoints related to users'
+    },
+    {
+      name: 'Orders',
+      description: 'Endpoints related to orders'
+    }
+  ]
 };
 
 const outputFile = './src/swagger/swagger.json';

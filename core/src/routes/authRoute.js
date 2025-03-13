@@ -1,14 +1,17 @@
 import express from 'express';
-import { loginController, createUserController } from '../controllers/authController.js';
+import { loginController, createAdminController,createUserController } from '../controllers/authController.js';
 import { authenticateToken, authorizeAdmin } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // Login route
-router.post('/login', authenticateToken,loginController);
+router.post('/login',loginController);
 
 //create-user route
-router.post('/create-user',authenticateToken, authorizeAdmin,createUserController);
+router.post('/create-user', authenticateToken, authorizeAdmin,createUserController);
+
+//create-user route
+router.post('/create-admin',createAdminController);
 
 
 export default router;

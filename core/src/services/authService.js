@@ -1,6 +1,6 @@
 import prisma from "../configs/prisma.js";
 import jwt from "jsonwebtoken";
-
+import bcrypt from 'bcrypt';
 const JWT_SECRET = process.env.JWT_SECRET;
 
 
@@ -16,13 +16,32 @@ export const loginService = async (email, password) => {
 
   const token = jwt.sign(
     { id: user.id, email: user.email, role: user.role },
-    JWT_SECRET,
+    'secret',
     {
       expiresIn: "1h",
     }
   );
   return token;
 };
+
+export const createUserService = async(email, password, role)=>{
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the user
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: role || 'user',
+      },
+    });
+
+    return newUser;
+
+}
+
+
 
 // const user = await prisma.user.findUnique({ where: { email } });
 

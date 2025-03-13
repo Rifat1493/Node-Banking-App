@@ -7,6 +7,10 @@ $ npm install --save-dev @babel/preset-env babel-jest
 # run individual test using
 $ npm run test:ind
 
+# migrate database
+$ npx prisma generate
+$ npx prisma db push
+
 
 
 ```
