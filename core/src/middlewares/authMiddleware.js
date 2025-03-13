@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -23,11 +25,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export const authenticateToken = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
+  
   if (!token)
     return res.status(401).json({ error: "Token missing or invalid" });
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: "Invalid token" });
+  jwt.verify(token, 'secret', { algorithms: ['HS256'] },(err, user) => {
+    if (err)  { console.error('JWT Verification Error:', err.message); return res.status(403).json({ error: "Invalid token" });}
     req.user = user;
     next();
   });
@@ -40,3 +43,10 @@ export const authorizeAdmin = (req, res, next) => {
   }
   next();
 };
+
+
+// export const test = (error, req, res, next) => {
+ 
+//   return res.status(403).json({ error: "handling error" });
+ 
+// };

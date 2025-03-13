@@ -7,6 +7,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
@@ -16,3 +17,36 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Customer {
+  customer_id   String       @id @default(auto())  @map("_id") @db.ObjectId
+  customer_name String
+  orders        Order[]
+}
+
+model Product {
+  product_id   String       @id @default(auto())  @map("_id") @db.ObjectId
+  product_name String
+  orderDetails OrderDetail[]
+}
+
+model Order {
+  order_id    String           @id @default(auto())  @map("_id") @db.ObjectId
+  customer_id String
+  order_date  DateTime
+  customer    Customer      @relation(fields: [customer_id], references: [customer_id])
+  orderDetails OrderDetail[]
+}
+
+model OrderDetail {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  customer_id String
+  order_id   String
+  product_id String
+  quantity   Int
+  unit_price Float  
+  order      Order   @relation(fields: [order_id], references: [order_id])
+  product    Product @relation(fields: [product_id], references: [product_id])
+
+ // @@id([order_id, product_id]) // Composite primary key
+ @@unique([order_id, product_id])
+}

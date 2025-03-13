@@ -5,6 +5,9 @@ import cors from "cors";
 import authRoutes from "./src/routes/authRoute.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./src/swagger/swagger.json"  assert { type: 'json' };;
+import customerRoutes from "./src/routes/customerRoute.js";
+import productRoutes from "./src/routes/productRoute.js";
+import orderRoutes from "./src/routes/orderRoute.js";
 
 dotenv.config();
 
@@ -15,8 +18,16 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
-app.use("/api/", authRoutes);
+// Create a base router for `/api`
+const apiRouter = express.Router();
+
+// Register sub-routes under `/api`
+apiRouter.use("/auth", authRoutes);
+apiRouter.use("/customer", customerRoutes);
+apiRouter.use("/product", productRoutes);
+apiRouter.use("/order", orderRoutes);
+// Use `/api` as the base route
+app.use("/api", apiRouter);
 
 // Swagger
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

@@ -1,8 +1,14 @@
 // Create User API
 
 
-import { loginService } from '../services/authService.js';
+import { loginService, createUserService } from '../services/authService.js';
+
+import dotenv from "dotenv";
+dotenv.config();
+
 const ADMIN_CREATION_TOKEN = process.env.ADMIN_CREATION_TOKEN;
+
+
 export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -23,7 +29,7 @@ export const loginController = async (req, res) => {
 };
 
 
-export const createUserController = async (req, res) => {
+export const createAdminController = async (req, res) => {
     const { email, password, role } = req.body;
   
     // Check if it's the first admin creation using admin token
@@ -38,22 +44,22 @@ export const createUserController = async (req, res) => {
     if (!isInitialAdmin && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Only admins can create users.' });
     }
-  
+
     try {
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      // Create the user
-      const newUser = await prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          role: role || 'user',
-        },
-      });
-  
-      res.status(201).json({ message: 'User created successfully', user: newUser });
+      const newUser = await createUserService(email, password, role);
+      res.status(201).json({ message: 'Admin created successfully', user: newUser });
     } catch (error) {
       res.status(500).json({ error: 'Failed to create user', details: error.message });
     }
   };
+
+  export const createUserController = async (req, res) => {
+    const { email, password, role } = req.body;
+
+    try {
+    const newUser = await createUserService(email, password, role);
+    res.status(201).json({ message: 'User created successfully', user: newUser });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create user', details: error.message });
+  }
+};
