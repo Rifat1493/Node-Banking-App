@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  # Node.js application service
+  app:
+    build: ./core
+    container_name: express-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./core/.env
+    volumes:
+      - ./core:/app
+      - /app/node_modules
+    restart: unless-stopped
