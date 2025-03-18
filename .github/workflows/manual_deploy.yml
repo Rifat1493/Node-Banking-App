@@ -1,0 +1,53 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:  # This enables manual triggering from GitHub Actions UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Terraform to create EC2 instance if not present
+      - name: Set up Terraform
+        run: |
+          echo "Setting up Terraform..."
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+
+      # Step 3: SSH setup (Add SSH private key and configure SSH)
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+
+      # Step 4: SSH into EC2, clone code (if required), and set up environment variables
+      - name: Deploy to EC2
+        run: |
+          # Fetch public IP of EC2 (output from Terraform)
+          EC2_PUBLIC_IP=$(terraform output -raw server_public_ip)
+          
+          # SSH into EC2 instance
+          ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP << 'EOF'
+            # Navigate to application directory or clone repo if it doesn't exist
+            cd /home/ec2-user/myapp || git clone https://github.com/${{ github.repository }} /home/ec2-user/myapp
+            cd /home/ec2-user/myapp
+
+            # Pull the latest code
+            git pull origin main
+
+            # Create .env file using GitHub secrets
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.DATABASE_URL }}" > /home/ec2-user/myapp/core/.env
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.JWT_SECRET }}" >> /home/ec2-user/myapp/core/.env
+           
+            # Run docker-compose to build and start the app
+            cd /home/ec2-user/myapp/core
+            docker-compose up --build -d
+          EOF

@@ -11,6 +11,14 @@ $ npm run test:ind
 $ npx prisma generate
 $ npx prisma db push
 
+# run terraform
+$ terraform init
+$ terraform apply -auto-approve
+$ terraform destroy -auto-approve
+
+$ ssh ec2-user@<server_public_ip> -i your-key.pem
+
+
 
 
 ```
