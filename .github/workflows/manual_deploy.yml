@@ -63,9 +63,10 @@ jobs:
         run: |
           # Fetch public IP of EC2 (output from Terraform)
           # EC2_PUBLIC_IP=$(terraform output -raw server_public_ip)
+          echo "Using EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}"
           
           # SSH into EC2 instance
-          ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ env.EC2_PUBLIC_IP }} << 'EOF'
             # Navigate to application directory or clone repo if it doesn't exist
             cd /home/ec2-user/myapp || git clone https://github.com/${{ github.repository }} /home/ec2-user/myapp
             cd /home/ec2-user/myapp
