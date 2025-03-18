@@ -37,18 +37,8 @@ jobs:
           terraform plan
           terraform apply -auto-approve
           # Extract and clean EC2 Public IP from Terraform output
-          EC2_PUBLIC_IP=$(terraform output -raw server_public_ip | tr -d '\n' | tr -d '\r')
+          EC2_PUBLIC_IP=$(terraform output -raw server_public_ip | tr -d '\n' | tr -d '\r')>> $GITHUB_ENV
 
-          # Debug output (optional)
-          echo "Extracted EC2_PUBLIC_IP: $EC2_PUBLIC_IP"
-
-          if [ -z "$EC2_PUBLIC_IP" ]; then
-            echo "ERROR: EC2 Public IP not found!"
-            exit 1
-          fi
-
-          # Store EC2_PUBLIC_IP as a GitHub Actions environment variable
-          echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
 
       # Step 3: SSH setup (Add SSH private key and configure SSH)
       - name: Set up SSH key
@@ -61,10 +51,10 @@ jobs:
       # Step 4: SSH into EC2, clone code (if required), and set up environment variables
       - name: Deploy to EC2
         run: |
-          echo "Using EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}"
+          echo "Using EC2_PUBLIC_IP: $EC2_PUBLIC_IP"
           
           # SSH into EC2 instance
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ env.EC2_PUBLIC_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP<< 'EOF'
             # Navigate to application directory or clone repo if it doesn't exist
             cd /home/ec2-user/myapp || git clone https://github.com/${{ github.repository }} /home/ec2-user/myapp
             cd /home/ec2-user/myapp
