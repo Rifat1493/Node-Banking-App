@@ -36,6 +36,19 @@ jobs:
           terraform init
           terraform plan
           terraform apply -auto-approve
+      - name: Get EC2 Public IP
+        id: get-ip
+        run: |
+          echo "Fetching EC2 public IP..."
+          EC2_PUBLIC_IP=$(terraform output -raw server_public_ip || echo "")
+          if [ -z "$EC2_PUBLIC_IP" ]; then
+            echo "❌ ERROR: EC2 Public IP not found!"
+            exit 1
+          fi
+          echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
+
+      - name: Wait for EC2 to be Ready
+        run: sleep 30  # Wait 30 seconds for EC2 initialization
 
       # Step 3: SSH setup (Add SSH private key and configure SSH)
       - name: Set up SSH key
@@ -49,7 +62,7 @@ jobs:
       - name: Deploy to EC2
         run: |
           # Fetch public IP of EC2 (output from Terraform)
-          EC2_PUBLIC_IP=$(terraform output -raw server_public_ip)
+          # EC2_PUBLIC_IP=$(terraform output -raw server_public_ip)
           
           # SSH into EC2 instance
           ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP << 'EOF'
