@@ -9,6 +9,13 @@ lerna-debug.log*
 
 public/
 
+.terraform
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.pem
+
+
 
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
