@@ -1,5 +1,4 @@
-name: CI/CD Pipeline
-
+name: Manual Deploy
 on:
   workflow_dispatch:  # This enables manual triggering from GitHub Actions UI
 
@@ -11,15 +10,33 @@ jobs:
       # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
+      # Step 2: Install Terraform
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest  # Or specify a version, e.g., 1.6.0
+            # Step 3: Configure AWS Credentials
+      - name: Configure AWS Credentials
+        run: |
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+          echo "[default]" > ~/.aws/config
+          echo "region=us-east-1" >> ~/.aws/config
+        shell: bash
+
 
       # Step 2: Set up Terraform to create EC2 instance if not present
       - name: Set up Terraform
         run: |
           echo "Setting up Terraform..."
+          cd terraform_instances
           terraform init
           terraform plan
           terraform apply -auto-approve
-
+          # Extract and clean EC2 Public IP from Terraform output
+          echo "EC2_PUBLIC_IP=$(terraform output -raw server_public_ip | tr -d '\n' | tr -d '\r')" >> $GITHUB_ENV
       # Step 3: SSH setup (Add SSH private key and configure SSH)
       - name: Set up SSH key
         run: |
@@ -31,11 +48,12 @@ jobs:
       # Step 4: SSH into EC2, clone code (if required), and set up environment variables
       - name: Deploy to EC2
         run: |
-          # Fetch public IP of EC2 (output from Terraform)
-          EC2_PUBLIC_IP=$(terraform output -raw server_public_ip)
+        
+          EXTRACTED_IP=$(echo "$EC2_PUBLIC_IP" | awk -F 'stdout: ' '{print $2}' | awk -F '::debug' '{print $1}')
+          echo "Using EC2_PUBLIC_IP: $EXTRACTED_IP"
           
           # SSH into EC2 instance
-          ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@$EXTRACTED_IP<< 'EOF'
             # Navigate to application directory or clone repo if it doesn't exist
             cd /home/ec2-user/myapp || git clone https://github.com/${{ github.repository }} /home/ec2-user/myapp
             cd /home/ec2-user/myapp
