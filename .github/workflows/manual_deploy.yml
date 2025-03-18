@@ -11,11 +11,18 @@ jobs:
       # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
+      # Step 2: Install Terraform
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest  # Or specify a version, e.g., 1.6.0
+
 
       # Step 2: Set up Terraform to create EC2 instance if not present
       - name: Set up Terraform
         run: |
           echo "Setting up Terraform..."
+          cd terraform_instances
           terraform init
           terraform plan
           terraform apply -auto-approve
