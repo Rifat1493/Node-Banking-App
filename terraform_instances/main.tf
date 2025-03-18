@@ -7,7 +7,7 @@ resource "aws_instance" "app_server" {
   ami           = "ami-08b5b3a93ed654d19"
   instance_type = "t2.micro"
   # Use your existing key pair
-  # key_name = "new"  # Replace with your actual keypair name (without the .pem extension)
+  key_name = "new"  # Replace with your actual keypair name (without the .pem extension)
 
 
 
