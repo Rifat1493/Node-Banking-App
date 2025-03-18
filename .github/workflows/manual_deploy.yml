@@ -49,10 +49,12 @@ jobs:
       # Step 4: SSH into EC2, clone code (if required), and set up environment variables
       - name: Deploy to EC2
         run: |
-          echo "Using EC2_PUBLIC_IP: $EC2_PUBLIC_IP"
+        
+          EXTRACTED_IP=$(echo "$EC2_PUBLIC_IP" | awk -F 'stdout: ' '{print $2}' | awk -F '::debug' '{print $1}')
+          echo "Using EC2_PUBLIC_IP: $EXTRACTED_IP"
           
           # SSH into EC2 instance
-          ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP<< 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@$EXTRACTED_IP<< 'EOF'
             # Navigate to application directory or clone repo if it doesn't exist
             cd /home/ec2-user/myapp || git clone https://github.com/${{ github.repository }} /home/ec2-user/myapp
             cd /home/ec2-user/myapp
