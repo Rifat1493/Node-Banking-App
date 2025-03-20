@@ -23,13 +23,10 @@ jobs:
       # Step 3: SSH into EC2 and deploy
       - name: Deploy to EC2
         run: |
-          echo "${{ vars.EC2_PUBLIC_IP }}"
-          echo "${{ env.EC2_PUBLIC_IP }}"
-          echo "Using EC2_PUBLIC_IP: $EC2_PUBLIC_IP"
-          EXTRACTED_IP=$(echo "$EC2_PUBLIC_IP" | awk -F 'stdout: ' '{print $2}' | awk -F '::debug' '{print $1}')
-          echo "Using EC2_PUBLIC_IP: $EXTRACTED_IP"
+          # EXTRACTED_IP=$(echo "$EC2_PUBLIC_IP" | awk -F 'stdout: ' '{print $2}' | awk -F '::debug' '{print $1}')
+          # echo "Using EC2_PUBLIC_IP: $EXTRACTED_IP"
 
-          ssh -o StrictHostKeyChecking=no ec2-user@$EXTRACTED_IP << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ vars.EC2_PUBLIC_IP }} << 'EOF'
             # Navigate to application directory or clone if it doesn’t exist
             cd /home/ec2-user/myapp || git clone https://github.com/${{ github.repository }} /home/ec2-user/myapp
             cd /home/ec2-user/myapp
