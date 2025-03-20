@@ -1,0 +1,44 @@
+name: Deploy to EC2
+
+on:
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code (optional if not needed in GitHub Actions itself)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up SSH key for authentication
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+
+      # Step 3: SSH into EC2 and deploy
+      - name: Deploy to EC2
+        run: |
+          EXTRACTED_IP=$(echo "$EC2_PUBLIC_IP" | awk -F 'stdout: ' '{print $2}' | awk -F '::debug' '{print $1}')
+          echo "Using EC2_PUBLIC_IP: $EXTRACTED_IP"
+
+          ssh -o StrictHostKeyChecking=no ec2-user@$EXTRACTED_IP << 'EOF'
+            # Navigate to application directory or clone if it doesn’t exist
+            cd /home/ec2-user/myapp || git clone https://github.com/${{ github.repository }} /home/ec2-user/myapp
+            cd /home/ec2-user/myapp
+
+            # Pull latest code
+            git pull origin main
+
+            # Set up environment variables
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.DATABASE_URL }}" > /home/ec2-user/myapp/core/.env
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.JWT_SECRET }}" >> /home/ec2-user/myapp/core/.env
+
+            # Deploy application using Docker Compose
+            cd /home/ec2-user/myapp/core
+            docker-compose up --build -d
+          EOF

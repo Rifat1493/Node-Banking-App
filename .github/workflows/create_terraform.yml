@@ -1,0 +1,39 @@
+name: Create Terraform
+on:
+  workflow_dispatch:  # This enables manual triggering from GitHub Actions UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+      # Step 2: Install Terraform
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest  # Or specify a version, e.g., 1.6.0
+            # Step 3: Configure AWS Credentials
+      - name: Configure AWS Credentials
+        run: |
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+          echo "[default]" > ~/.aws/config
+          echo "region=us-east-1" >> ~/.aws/config
+        shell: bash
+
+
+      # Step 2: Set up Terraform to create EC2 instance if not present
+      - name: Set up Terraform
+        run: |
+          echo "Setting up Terraform..."
+          cd terraform_instances
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+          # Extract and clean EC2 Public IP from Terraform output
+          echo "EC2_PUBLIC_IP=$(terraform output -raw server_public_ip | tr -d '\n' | tr -d '\r')" >> $GITHUB_ENV
