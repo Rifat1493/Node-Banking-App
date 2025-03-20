@@ -3,9 +3,6 @@ name: Deploy to EC2
 on:
   workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
 
-# env:
-#   EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}  # Store EC2 IP in GitHub Secrets
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
