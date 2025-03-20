@@ -1,16 +1,11 @@
-
 provider "aws" {
   region = "us-east-1"
 }
 
 resource "aws_instance" "app_server" {
-  ami           = "ami-08b5b3a93ed654d19"
+  ami           = "ami-08b5b3a93ed654d19" # Replace with a valid Amazon Linux 2 AMI if needed
   instance_type = "t2.micro"
-  # Use your existing key pair
-  key_name = "new"  # Replace with your actual keypair name (without the .pem extension)
-
-
-
+  key_name      = "new" # Replace with your actual keypair name
   security_groups = ["default"]
 
   tags = {
@@ -21,9 +16,11 @@ resource "aws_instance" "app_server" {
     #!/bin/bash
     set -ex
 
-    # Install updates and enable Docker
+    # Log user-data output
+    exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+    # Install updates and Docker
     yum update -y
-    amazon-linux-extras enable docker
     yum install -y docker git python3-pip
 
     # Start and enable Docker
@@ -39,11 +36,11 @@ resource "aws_instance" "app_server" {
     chmod +x /usr/local/bin/docker-compose
     ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
-    # Reboot to apply changes
-    reboot
+    # Verify installations
+    docker --version
+    docker-compose --version
   EOF
 }
-
 
 output "server_public_ip" {
   value = aws_instance.app_server.public_ip
