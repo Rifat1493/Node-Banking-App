@@ -13,6 +13,7 @@
     "passport-auth0": "^1.4.4",
     "supertest": "^7.0.0",
     "swagger-autogen": "^2.23.7",
+    "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "ts-jest": "^29.2.5"
   },

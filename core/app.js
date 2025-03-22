@@ -21,10 +21,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Create a base router for `/api`
 const apiRouter = express.Router();
 
-// Register sub-routes under `/api`
+
 apiRouter.use("/auth", authRoutes);
+
 apiRouter.use("/customer", customerRoutes);
+
 apiRouter.use("/product", productRoutes);
+
 apiRouter.use("/order", orderRoutes);
 // Use `/api` as the base route
 app.use("/api", apiRouter);

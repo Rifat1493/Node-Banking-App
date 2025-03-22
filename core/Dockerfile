@@ -22,5 +22,5 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Command to run the application
-CMD ["npm", "run", "start"]
+# Run Swagger generation before starting the app
+CMD ["sh", "-c", "node swagger.js && npm run start"]

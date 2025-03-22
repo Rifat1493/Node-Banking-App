@@ -33,10 +33,12 @@ jobs:
 
             # Pull latest code
             git pull origin main
-
             # Set up environment variables
-            echo "AWS_ACCESS_KEY_ID=${{ secrets.DATABASE_URL }}" > /home/ec2-user/myapp/core/.env
-            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.JWT_SECRET }}" >> /home/ec2-user/myapp/core/.env
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > /home/ec2-user/myapp/core/.env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> /home/ec2-user/myapp/core/.env
+            echo "ADMIN_CREATION_TOKEN=${{ secrets.ADMIN_CREATION_TOKEN }}" >> /home/ec2-user/myapp/core/.env
+            echo "EC2_PUBLIC_IP=${{ vars.EC2_PUBLIC_IP }}" >> /home/ec2-user/myapp/core/.env
+
 
             # Deploy application using Docker Compose
             cd /home/ec2-user/myapp/core

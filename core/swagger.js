@@ -1,29 +1,25 @@
-
-
 import swaggerAutogen from "swagger-autogen";
+import dotenv from "dotenv";
+dotenv.config();
 
 const doc = {
   info: {
-    title: 'Express API',
+    title: 'Automatic Processing of LC',
     description: 'Automatically generated Swagger documentation',
   },
-  host: 'localhost:3000', // Change this to your server's host and port
+  host: `${process.env.EC2_PUBLIC_IP || 'localhost'}:3000`, // Default to 'localhost:3000' if EC2_PUBLIC_IP is not set
   schemes: ['http'],
-  tags: [  // ✅ Define API headers (sections)
+  tags: [
     {
-      name: 'Customers', 
-      description: 'Endpoints related to users'
-    },
-    {
-      name: 'Orders',
-      description: 'Endpoints related to orders'
+      name: 'Customers',
+      description: 'Endpoints related to customers'
     }
   ]
 };
 
 const outputFile = './src/swagger/swagger.json';
-const endpointsFiles = ['./app.js']; // Replace with your main application file or route files
+const endpointsFiles = ['./app.js'];
 
-swaggerAutogen(outputFile, endpointsFiles).then(() => {
+swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {
   console.log('Swagger documentation has been generated!');
 });
