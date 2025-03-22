@@ -4,6 +4,19 @@ import { authenticateToken, authorizeAdmin } from '../middlewares/authMiddleware
 
 const router = express.Router();
 
+
+/**
+ * @swagger
+ * api/auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: Successful login
+ */
+
 // Login route
 router.post('/login',loginController);
 

@@ -1,12 +1,18 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0",
-    "title": "REST API",
-    "description": ""
+    "title": "Automatic Processing of LC",
+    "description": "Automatically generated Swagger documentation",
+    "version": "1.0.0"
   },
   "host": "localhost:3000",
   "basePath": "/",
+  "tags": [
+    {
+      "name": "Customers",
+      "description": "Endpoints related to customers"
+    }
+  ],
   "schemes": [
     "http"
   ],
