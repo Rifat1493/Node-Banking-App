@@ -33,7 +33,15 @@ apiRouter.use("/order", orderRoutes);
 app.use("/api", apiRouter);
 
 // Swagger
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+app.use("/docs", (req, res, next) => {
+  const host = req.get("host"); // Get the request's host dynamically
+  swaggerDocument.host = host; // Update Swagger doc
+  req.swaggerDoc = swaggerDocument;
+  next();
+}, swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Error Handling
 app.use((err, req, res, next) => {
