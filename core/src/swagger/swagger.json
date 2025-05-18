@@ -17,6 +17,16 @@
     "http"
   ],
   "paths": {
+    "/metrics": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/auth/login": {
       "post": {
         "description": "",
